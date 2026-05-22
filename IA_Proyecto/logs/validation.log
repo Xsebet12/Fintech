@@ -1,0 +1,76 @@
+2026-05-03 22:58:43,029 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-03 22:59:36,599 - INFO - Total registros procesados: 6
+2026-05-03 22:59:36,600 - INFO - Total registros válidos: 6
+2026-05-03 22:59:36,600 - INFO - Total registros inválidos: 0
+2026-05-03 23:15:23,240 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-03 23:16:02,467 - INFO - Total registros procesados: 6
+2026-05-03 23:16:02,467 - INFO - Total registros válidos: 3
+2026-05-03 23:16:02,468 - INFO - Total registros inválidos: 3
+2026-05-03 23:16:02,468 - WARNING - Registro inválido detectado: Fecha inválida | Precio no numérico
+2026-05-03 23:16:02,469 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-03 23:16:02,470 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-03 23:24:41,214 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-03 23:25:15,047 - INFO - Total registros procesados: 6
+2026-05-03 23:25:15,047 - INFO - Total registros válidos: 3
+2026-05-03 23:25:15,048 - INFO - Total registros inválidos: 3
+2026-05-03 23:25:15,049 - WARNING - Registro inválido detectado: Fecha inválida | Precio no numérico
+2026-05-03 23:25:15,049 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-03 23:25:15,050 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-03 23:41:43,243 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-03 23:42:27,583 - INFO - Total registros procesados: 6
+2026-05-03 23:42:27,584 - INFO - Total registros válidos: 3
+2026-05-03 23:42:27,584 - INFO - Total registros inválidos: 3
+2026-05-03 23:42:27,585 - WARNING - Registro inválido detectado: Fecha inválida | Precio no numérico
+2026-05-03 23:42:27,586 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-03 23:42:27,586 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-06 01:00:48,810 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-06 01:01:39,912 - INFO - Total registros procesados: 8
+2026-05-06 01:01:39,913 - INFO - Total registros válidos: 4
+2026-05-06 01:01:39,913 - INFO - Total registros inválidos: 4
+2026-05-06 01:01:39,914 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-06 01:01:39,915 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-06 01:01:39,915 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-06 01:01:39,916 - WARNING - Registro inválido detectado: Cantidad fuera de rango lógico
+2026-05-06 01:42:37,566 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-06 01:45:17,861 - INFO - Total registros procesados: 8
+2026-05-06 01:45:17,861 - INFO - Total registros válidos: 4
+2026-05-06 01:45:17,862 - INFO - Total registros inválidos: 4
+2026-05-06 01:45:17,862 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-06 01:45:17,863 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-06 01:45:17,863 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-06 01:45:17,863 - WARNING - Registro inválido detectado: Cantidad fuera de rango lógico
+2026-05-06 02:00:52,183 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-06 02:01:37,342 - INFO - Total registros procesados: 8
+2026-05-06 02:01:37,343 - INFO - Total registros válidos: 3
+2026-05-06 02:01:37,343 - INFO - Total registros inválidos: 5
+2026-05-06 02:01:37,344 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-06 02:01:37,345 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-06 02:01:37,345 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-06 02:01:37,345 - WARNING - Registro inválido detectado: Cantidad fuera de rango lógico
+2026-05-06 02:01:37,346 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-08 13:18:48,298 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-08 13:34:50,785 - INFO - Total registros procesados: 8
+2026-05-08 13:34:50,785 - INFO - Total registros válidos: 3
+2026-05-08 13:34:50,786 - INFO - Total registros inválidos: 5
+2026-05-08 13:34:50,786 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-08 13:34:50,787 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-08 13:34:50,787 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-08 13:34:50,788 - WARNING - Registro inválido detectado: Cantidad fuera de rango lógico
+2026-05-08 13:34:50,788 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-08 13:35:42,466 - INFO - Total registros procesados: 8
+2026-05-08 13:35:42,467 - INFO - Total registros válidos: 3
+2026-05-08 13:35:42,468 - INFO - Total registros inválidos: 5
+2026-05-08 13:35:42,469 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-08 13:35:42,469 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-08 13:35:42,469 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-08 13:35:42,470 - WARNING - Registro inválido detectado: Cantidad fuera de rango lógico
+2026-05-08 13:35:42,470 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-12 23:24:53,899 - INFO - Inicio del proceso de validación del dataset procesado
+2026-05-12 23:25:30,550 - INFO - Total registros procesados: 8
+2026-05-12 23:25:30,550 - INFO - Total registros válidos: 3
+2026-05-12 23:25:30,551 - INFO - Total registros inválidos: 5
+2026-05-12 23:25:30,552 - WARNING - Registro inválido detectado: Fecha inválida
+2026-05-12 23:25:30,553 - WARNING - Registro inválido detectado: Precio no numérico
+2026-05-12 23:25:30,553 - WARNING - Registro inválido detectado: Cantidad no numérica
+2026-05-12 23:25:30,554 - WARNING - Registro inválido detectado: Cantidad fuera de rango lógico
+2026-05-12 23:25:30,554 - WARNING - Registro inválido detectado: Fecha inválida

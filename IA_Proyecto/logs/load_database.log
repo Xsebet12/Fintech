@@ -1,0 +1,46 @@
+2026-05-03 23:16:30,799 - INFO - Inicio del proceso de carga a base de datos
+2026-05-03 23:16:43,793 - INFO - Conexión a PostgreSQL exitosa
+2026-05-03 23:17:28,289 - INFO - Tablas verificadas/creadas correctamente
+2026-05-03 23:25:32,445 - INFO - Inicio del proceso de carga a base de datos
+2026-05-03 23:25:38,715 - INFO - Conexión a PostgreSQL exitosa
+2026-05-03 23:25:41,524 - INFO - Tablas verificadas/creadas correctamente
+2026-05-03 23:43:05,119 - INFO - Inicio del proceso de carga a base de datos
+2026-05-03 23:43:05,166 - INFO - Inicio del proceso de carga a base de datos
+2026-05-03 23:43:12,621 - INFO - Conexión a PostgreSQL exitosa
+2026-05-03 23:43:16,475 - INFO - Tablas verificadas/creadas correctamente
+2026-05-03 23:43:56,238 - INFO - Inicio del proceso de carga a base de datos
+2026-05-03 23:44:01,928 - INFO - Conexión a PostgreSQL exitosa
+2026-05-03 23:44:05,060 - INFO - Tablas verificadas/creadas correctamente
+2026-05-03 23:45:00,771 - INFO - Inicio del proceso de carga a base de datos
+2026-05-03 23:45:08,304 - INFO - Conexión a PostgreSQL exitosa
+2026-05-03 23:45:11,320 - INFO - Tablas verificadas/creadas correctamente
+2026-05-03 23:46:01,288 - INFO - Registros válidos insertados: 3
+2026-05-03 23:46:49,127 - INFO - Registros válidos insertados: 3
+2026-05-03 23:47:03,618 - INFO - Registros inválidos insertados en tabla de error: 3
+2026-05-03 23:47:32,272 - INFO - Registros inválidos insertados en tabla de error: 3
+2026-05-03 23:48:13,938 - INFO - Fin del proceso de carga a base de datos
+2026-05-06 01:02:59,141 - INFO - Inicio del proceso de carga a base de datos
+2026-05-06 01:03:07,564 - INFO - Conexión a PostgreSQL exitosa
+2026-05-06 01:03:16,557 - INFO - Tablas verificadas/creadas correctamente
+2026-05-06 01:45:37,024 - INFO - Inicio del proceso de carga a base de datos
+2026-05-06 01:45:44,976 - INFO - Conexión a PostgreSQL exitosa
+2026-05-06 01:45:49,080 - INFO - Tablas verificadas/creadas correctamente
+2026-05-06 01:46:32,576 - ERROR - No se insertaron válidos por errores: ['La columna fecha contiene valores nulos']
+2026-05-06 02:01:57,263 - INFO - Inicio del proceso de carga a base de datos
+2026-05-06 02:02:03,503 - INFO - Conexión a PostgreSQL exitosa
+2026-05-06 02:02:06,490 - INFO - Tablas verificadas/creadas correctamente
+2026-05-06 02:02:30,584 - INFO - Registros válidos insertados: 3
+2026-05-06 02:02:36,071 - INFO - Registros inválidos insertados en tabla de error: 5
+2026-05-06 02:02:52,812 - INFO - Fin del proceso de carga a base de datos
+2026-05-08 13:45:58,429 - INFO - Inicio del proceso de carga a base de datos
+2026-05-08 13:47:24,767 - INFO - Conexión a PostgreSQL exitosa
+2026-05-08 13:48:47,226 - INFO - Tablas verificadas/creadas correctamente
+2026-05-08 13:55:48,425 - INFO - Registros válidos insertados: 3
+2026-05-08 13:56:17,777 - INFO - Registros inválidos insertados en tabla de error: 5
+2026-05-08 14:02:38,071 - INFO - Fin del proceso de carga a base de datos
+2026-05-12 23:26:19,593 - INFO - Inicio del proceso de carga a base de datos
+2026-05-12 23:26:27,104 - INFO - Conexión a PostgreSQL exitosa
+2026-05-12 23:26:31,580 - INFO - Tablas verificadas/creadas correctamente
+2026-05-12 23:26:55,910 - INFO - Registros válidos insertados: 3
+2026-05-12 23:26:58,864 - INFO - Registros inválidos insertados en tabla de error: 5
+2026-05-12 23:27:13,252 - INFO - Fin del proceso de carga a base de datos

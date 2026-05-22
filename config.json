@@ -1,0 +1,13 @@
+{
+  "titanic_path": "Titanic.csv",
+  "openlibrary": {
+    "subject": "scifi",
+    "limit": 10
+  },
+  "open_meteo": {
+    "latitude": -33.453654,
+    "longitude": -70.573846,
+    "snapshots": 5,
+    "timeout": 5
+  }
+}
