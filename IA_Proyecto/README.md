@@ -25,6 +25,3 @@ Buenas prácticas
 - No modifiques los archivos en `data/raw/` directamente; crea scripts en `src/` que produzcan `data/processed/`.
 - Añade `data/` y `logs/` a `.gitignore` si contienen datos sensibles o pesados; versiona solo muestras o metadatos relevantes.
 - Documenta en esta README cualquier paso de preprocesado crítico o dependencias especiales.
-
-Si quieres, puedo añadir comandos concretos para ejecutar los notebooks en un entorno `devcontainer` o ejemplos de scripts en `src/`.
-
