@@ -1,5 +1,5 @@
 {
-  "titanic_path": "Titanic.csv",
+  "titanic_path": "fintech.csv",
   "openlibrary": {
     "subject": "scifi",
     "limit": 10

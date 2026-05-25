@@ -8,7 +8,8 @@ import requests
 from IA_Proyecto.src.audit_utils import ensure_dir, sha256_text, utc_now_iso
 
 logger = logging.getLogger("ingestion.leer_batch")
-def _sha256_bytes(data: bytes) -> str:
+
+
 def _save_metadata(metadata: dict, source_name: str):
     outdir = ensure_dir(os.path.join("..", "data", "metadata"))
     ts = metadata.get("ingested_at", utc_now_iso())
@@ -44,7 +45,7 @@ def leer_datos_batch(subject: str = "cooking", limit: Optional[int] = 10, timeou
             df["_ingested_at"] = ingested_at
             # generate simple per-row hash if not present
             if "record_hash" not in df.columns:
-            df["record_hash"] = df.apply(lambda r: sha256_text("|".join(map(str, r.values))), axis=1)
+                df["record_hash"] = df.apply(lambda r: sha256_text("|".join(map(str, r.values))), axis=1)
 
         # metadata
         metadata = {

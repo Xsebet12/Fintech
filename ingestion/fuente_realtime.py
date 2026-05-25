@@ -8,6 +8,8 @@ import requests
 from IA_Proyecto.src.audit_utils import ensure_dir, sha256_text, utc_now_iso
 
 logger = logging.getLogger("ingestion.fuente_realtime")
+
+
 def _save_metadata(metadata: dict, name: str = "open-meteo"):
     outdir = ensure_dir(os.path.join("..", "data", "metadata"))
     ts = metadata.get("ingested_at", utc_now_iso())

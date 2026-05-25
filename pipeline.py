@@ -66,7 +66,7 @@ def run_orchestator(config_path: str = 'config.json'):
 
     print("\n--- Resumen de datos transformados")
     for elemento, df in almacen_datos.items():
-        print(f"\FUENTE/TRANSFORMACIÓN: {elemento}")
+        print(f"FUENTE/TRANSFORMACIÓN: {elemento}")
         if hasattr(df, 'empty') and not df.empty:
             print(df.head(2) if hasattr(df, 'head') else df)
         elif isinstance(df, pd.Series):
@@ -78,7 +78,7 @@ def run_orchestator(config_path: str = 'config.json'):
 
     print("\n--- Resumen de datos validados")
     for elemento, df in almacen_datos.items():
-        print(f"\FUENTE/VALIDACIÓN: {elemento}")
+        print(f"FUENTE/VALIDACIÓN: {elemento}")
         if hasattr(df, 'empty') and not df.empty:
             print(df.head(2) if hasattr(df, 'head') else df)
         elif isinstance(df, pd.Series):
