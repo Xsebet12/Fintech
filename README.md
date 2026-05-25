@@ -12,6 +12,13 @@ Para ejecutar el pipeline:
 python pipeline.py
 ```
 
+Flujo de auditoría
+------------------
+
+- Cada ingesta guarda metadata en `IA_Proyecto/data/metadata/`.
+- Las salidas de `processed` quedan versionadas por timestamp, sin sobrescribir archivos anteriores.
+- Los notebooks consumen la última versión disponible para mantener trazabilidad.
+
 Carpetas importantes
 --------------------
 
