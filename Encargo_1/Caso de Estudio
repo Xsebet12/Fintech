@@ -1,0 +1,6 @@
+Caso de Estudio 1: Sistema de Auditoría para una Fintech
+Contexto del Problema: Una empresa de tecnología financiera (fintech) necesita construir un nuevo sistema para procesar y
+almacenar todas sus transacciones de pago. Los requisitos son muy estrictos y no cambiarán: el sistema debe garantizar la total
+inmutabilidad de los registros, cumplir con transacciones
+ACID y permitir auditorías exactas de datos históricos. Los únicos entregables son reportes regulatorios fijos que se generan cada
+mes
