@@ -1,11 +1,9 @@
-import pandas as pd
-import time
 import json
 import os
 
+import pandas as pd
+
 from ingestion.lectura_csv import leer_datos_csv
-from ingestion.leer_batch import leer_datos_batch
-from ingestion.fuente_realtime import leer_clima_tiempo_real
 from procesamiento.transformacion import generar_transformaciones
 from data_quality.validacion import ejecutar_validaciones
 
@@ -23,35 +21,9 @@ def run_orchestator(config_path: str = 'config.json'):
 
     almacen_datos = {}
 
-    print("--- Lectura de csv")
-    titanic_path = config.get('titanic_path', 'Titanic.csv')
-    almacen_datos['Titanic'] = leer_datos_csv(titanic_path)
-
-    print("--- Lectura de titulos libros")
-    ol_conf = config.get('openlibrary', {})
-    subject = ol_conf.get('subject', 'scifi')
-    limit = ol_conf.get('limit', 10)
-    almacen_datos['Libros'] = leer_datos_batch(subject=subject, limit=limit)
-
-    print("--- Lectura del clima en tiempo real")
-    total_lecturas = []
-    om_conf = config.get('open_meteo', {})
-    snapshots = om_conf.get('snapshots', 5)
-    lat = om_conf.get('latitude', -33.453654)
-    lon = om_conf.get('longitude', -70.573846)
-    timeout = om_conf.get('timeout', 5)
-
-    for i in range(int(snapshots)):
-        print(f"  > instantanea {i+1}...")
-        df_snap = leer_clima_tiempo_real(latitude=lat, longitude=lon, timeout=timeout)
-        if not df_snap.empty:
-            total_lecturas.append(df_snap)
-        time.sleep(1)
-
-    if total_lecturas:
-        almacen_datos['clima'] = pd.concat(total_lecturas, ignore_index=True)
-    else:
-        almacen_datos['clima'] = pd.DataFrame()
+    print("--- Lectura de transacciones fintech")
+    fintech_path = config.get('fintech_path', 'fintech.csv')
+    almacen_datos['Fintech'] = leer_datos_csv(fintech_path)
 
     print("--- Resumen de datos sin transformar")
     for elemento, df in almacen_datos.items():

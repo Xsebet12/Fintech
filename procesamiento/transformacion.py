@@ -1,45 +1,69 @@
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 
 def generar_transformaciones(almacen_datos):
 
     print("\n--- Ejecutando transformaciones en procesamiento/transformacion.py")
 
-    df = almacen_datos.get('Titanic')
+    df = almacen_datos.get('Fintech')
     if df is None or (hasattr(df, 'empty') and df.empty):
-        print("No hay datos del Titanic para transformar.")
+        print("No hay datos de fintech para transformar.")
         return almacen_datos
 
-    # Detectar nombre de columna para sobrevivencia con tolerancia a typos
-    possible_survived = [c for c in df.columns if c.lower() in ('survived', '2urvived', 'surv')]
-    if possible_survived:
-        surv_col = possible_survived[0]
-        resumen_supervivencia = df.groupby(surv_col).size()
-        almacen_datos['Resumen_Supervivencia'] = resumen_supervivencia
-        print(f"Entrada 'Resumen_Supervivencia' agregada correctamente usando columna '{surv_col}'.")
-    else:
-        print("Advertencia: No se encontró columna de supervivencia conocida ('Survived'). Omite resumen.")
+    df = df.copy()
+    df.columns = [str(col).strip() for col in df.columns]
 
-    if 'Age' in df.columns:
-        scaler = MinMaxScaler()
-        df['Age'] = df['Age'].fillna(df['Age'].median())
-        df['Age'] = scaler.fit_transform(df[['Age']])
-        print("Columna 'Age' normalizada (0-1).")
+    if 'created_at' in df.columns:
+        df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce', utc=True)
+
+    if 'reporting_month' in df.columns:
+        df['reporting_month'] = df['reporting_month'].astype(str).str.strip()
+
+    numeric_columns = ['amount', 'balance_before', 'balance_after']
+    for column in numeric_columns:
+        if column in df.columns:
+            df[column] = pd.to_numeric(df[column], errors='coerce')
+
+    if 'finalized' in df.columns:
+        def normalizar_booleano(valor):
+            if pd.isna(valor):
+                return False
+            if isinstance(valor, bool):
+                return valor
+            return str(valor).strip().lower() in {'true', '1', 'yes', 'y', 'si', 'sí'}
+
+        df['finalized'] = df['finalized'].apply(normalizar_booleano)
+
+    if 'transaction_type' in df.columns and 'amount' in df.columns:
+        def monto_firmado(row):
+            tipo = str(row.get('transaction_type', '')).strip().upper()
+            monto = row.get('amount')
+            if pd.isna(monto):
+                return pd.NA
+            if tipo in {'DEBIT', 'FEE'}:
+                return -abs(monto)
+            return abs(monto)
+
+        df['amount_signed'] = df.apply(monto_firmado, axis=1)
+
+    if 'balance_before' in df.columns and 'balance_after' in df.columns:
+        df['balance_delta'] = df['balance_after'] - df['balance_before']
+
+    if 'metadata' in df.columns:
+        df['metadata_channel'] = df['metadata'].astype(str).str.extract(r'channel=([^|]+)', expand=False).str.strip()
+        df['metadata_note'] = df['metadata'].astype(str).str.extract(r'note=([^|]+)', expand=False).str.strip()
+
+    if {'reporting_month', 'transaction_type', 'amount'}.issubset(df.columns):
+        resumen_mensual = (
+            df.groupby(['reporting_month', 'transaction_type'], dropna=False)
+            .agg(
+                total_transacciones=('transaction_id', 'count') if 'transaction_id' in df.columns else ('amount', 'count'),
+                monto_total=('amount', 'sum'),
+            )
+            .reset_index()
+        )
+        almacen_datos['Resumen_Mensual'] = resumen_mensual
+        print("Resumen_Mensual agregado correctamente.")
     
-    if 'Fare' in df.columns:
-        df['Fare'] = df['Fare'].fillna(df['Fare'].median())
-        def categorizar_fare(valor):
-            try:
-                if valor <= 50: return "0-50 dolares"
-                elif valor <= 100: return "51-100 dolares"
-                else: return "más de 100 dolares"
-            except Exception:
-                return "desconocido"
-        df['Fare_Category'] = df['Fare'].apply(categorizar_fare)
-        print("Columna 'Fare_Category' creada.")
-    
-    # Actualizar el dataframe en el almacén
-    almacen_datos['Titanic'] = df
+    almacen_datos['Fintech'] = df
 
     return almacen_datos
