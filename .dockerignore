@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+
+# VS Code y entorno de desarrollo
+.vscode
+.devcontainer
+
+# Variables de entorno
+.env
+
+# Archivos de Windows
+desktop.ini
+
+# Archivos de Mac
+.DS_Store
