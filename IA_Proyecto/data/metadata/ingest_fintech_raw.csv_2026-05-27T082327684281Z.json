@@ -1,0 +1,26 @@
+{
+  "source": "IA_Proyecto/data/raw/fintech_raw.csv",
+  "ingested_at": "2026-05-27T08:23:27.684281Z",
+  "records": 160,
+  "file_hash": "ede71a8593d4e63d51401ac5021fc72239c8c2e215b00eeba4b072c260a8bc36",
+  "columns": [
+    "transaction_id",
+    "created_at",
+    "reporting_month",
+    "account_id",
+    "counterparty_account",
+    "transaction_group_id",
+    "transaction_type",
+    "status",
+    "amount",
+    "currency",
+    "balance_before",
+    "balance_after",
+    "regulatory_code",
+    "finalized",
+    "record_hash",
+    "prev_record_hash",
+    "metadata",
+    "_ingested_at"
+  ]
+}

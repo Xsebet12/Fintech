@@ -32,6 +32,10 @@ def generar_transformaciones(almacen_datos):
         if column in df.columns:
             df[column] = pd.to_numeric(df[column], errors='coerce')
 
+    if {'amount', 'balance_before', 'balance_after'}.issubset(df.columns):
+        amount_calculado = (df['balance_after'] - df['balance_before']).abs()
+        df['amount'] = df['amount'].fillna(amount_calculado)
+
     if 'finalized' in df.columns:
         def normalizar_booleano(valor):
             if pd.isna(valor):
@@ -53,6 +57,14 @@ def generar_transformaciones(almacen_datos):
             return abs(monto)
 
         df['amount_signed'] = df.apply(monto_firmado, axis=1)
+
+    if 'amount_signed' in df.columns:
+        if 'balance_before' in df.columns and 'balance_after' in df.columns:
+            before_calculado = df['balance_after'] - df['amount_signed']
+            after_calculado = df['balance_before'] + df['amount_signed']
+
+            df['balance_before'] = df['balance_before'].fillna(before_calculado)
+            df['balance_after'] = df['balance_after'].fillna(after_calculado)
 
     if 'balance_before' in df.columns and 'balance_after' in df.columns:
         df['balance_delta'] = df['balance_after'] - df['balance_before']
@@ -84,7 +96,7 @@ def generar_transformaciones(almacen_datos):
                 transacciones=('transaction_id', 'count') if 'transaction_id' in df.columns else ('amount', 'count'),
                 monto_total=('amount', 'sum'),
                 monto_promedio=('amount', 'mean'),
-                transacciones_confirmadas=('status', lambda s: (s == 'CONFIRMED').sum()),
+                transacciones_confirmadas=('status', lambda s: (s == 'COMPLETED').sum()),
             )
             .reset_index()
             .sort_values('monto_total', ascending=False)

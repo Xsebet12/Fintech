@@ -46,10 +46,42 @@ def ejecutar_validaciones(almacen_datos, config=None):
         else:
             df['monto_firmado'] = pd.NA
 
+        if 'status' in df.columns:
+            status_upper = df['status'].astype(str).str.strip().str.upper()
+            df['val_status_known'] = status_upper.isin({'COMPLETED', 'FAILED', 'PENDING'})
+            if {'balance_before', 'balance_after'}.issubset(df.columns):
+                df['val_status_integrity'] = ~((status_upper == 'FAILED') & (df['balance_before'] != df['balance_after']))
+            else:
+                df['val_status_integrity'] = False
+            df['val_status'] = df['val_status_known'] & df['val_status_integrity']
+        else:
+            status_upper = pd.Series('', index=df.index)
+            df['val_status_known'] = False
+            df['val_status_integrity'] = False
+            df['val_status'] = False
+
         validation_config = _get_setting(config, 'validation', {})
         tolerance = float(_get_setting(validation_config, 'balance_tolerance', 0.01))
         if 'balance_before' in df.columns and 'balance_after' in df.columns and 'monto_firmado' in df.columns:
-            df['val_balance'] = (df['balance_before'] + df['monto_firmado']).sub(df['balance_after']).abs() <= tolerance
+            df['val_balance'] = False
+            completed_mask = status_upper.eq('COMPLETED')
+            failed_or_pending_mask = status_upper.isin({'FAILED', 'PENDING'})
+
+            if completed_mask.any():
+                df.loc[completed_mask, 'val_balance'] = (
+                    (df.loc[completed_mask, 'balance_before'] + df.loc[completed_mask, 'monto_firmado'])
+                    .sub(df.loc[completed_mask, 'balance_after'])
+                    .abs()
+                    <= tolerance
+                )
+
+            if failed_or_pending_mask.any():
+                df.loc[failed_or_pending_mask, 'val_balance'] = (
+                    df.loc[failed_or_pending_mask, 'balance_before']
+                    .sub(df.loc[failed_or_pending_mask, 'balance_after'])
+                    .abs()
+                    <= tolerance
+                )
         else:
             df['val_balance'] = False
 
@@ -73,17 +105,16 @@ def ejecutar_validaciones(almacen_datos, config=None):
             ordered = df.copy()
             ordered['_sort_created_at'] = pd.to_datetime(ordered['created_at'], errors='coerce', utc=True)
             ordered = ordered.sort_values(['_sort_created_at', 'transaction_id'], na_position='last')
-            val_chain = pd.Series(False, index=df.index)
-            previous_hash = None
             zero_hash = _get_setting(validation_config, 'zero_hash', '0000000000000000000000000000000000000000000000000000000000000000')
-            for idx, row in ordered.iterrows():
-                expected_previous = zero_hash if previous_hash is None else previous_hash
-                current_prev_hash = str(row.get('prev_record_hash', '')).strip()
-                current_record_hash = str(row.get('record_hash', '')).strip()
-                val_chain.loc[idx] = current_prev_hash == expected_previous and current_record_hash != ''
-                if current_record_hash:
-                    previous_hash = current_record_hash
-            df['val_hash_chain'] = val_chain
+
+            expected_prev_hash = ordered['record_hash'].fillna('').astype(str).str.strip().shift(1, fill_value=zero_hash)
+            current_prev_hash = ordered['prev_record_hash'].fillna('').astype(str).str.strip()
+            current_record_hash = ordered['record_hash'].fillna('').astype(str).str.strip()
+
+            ordered['val_hash_chain'] = current_prev_hash.eq(expected_prev_hash) & current_record_hash.ne('')
+
+            df['val_hash_chain'] = False
+            df.loc[ordered.index, 'val_hash_chain'] = ordered['val_hash_chain']
         else:
             df['val_hash_chain'] = False
 
@@ -92,7 +123,7 @@ def ejecutar_validaciones(almacen_datos, config=None):
         else:
             df['val_unique_id'] = False
 
-        columnas_validacion = [col for col in ['val_amount', 'val_balance', 'val_reporting_month', 'val_hash_present', 'val_hash_chain', 'val_unique_id'] if col in df.columns]
+        columnas_validacion = [col for col in ['val_amount', 'val_status', 'val_balance', 'val_reporting_month', 'val_hash_present', 'val_hash_chain', 'val_unique_id'] if col in df.columns]
         if columnas_validacion:
             df['registro_valido'] = df[columnas_validacion].all(axis=1)
         else:
@@ -102,6 +133,8 @@ def ejecutar_validaciones(almacen_datos, config=None):
             errores = []
             if not row.get('val_amount', False):
                 errores.append('Monto inválido')
+            if not row.get('val_status', False):
+                errores.append('Estado no permitido o inconsistente')
             if not row.get('val_balance', False):
                 errores.append('Saldo inconsistente')
             if not row.get('val_reporting_month', False):

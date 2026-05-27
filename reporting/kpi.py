@@ -27,7 +27,7 @@ def calcular_kpis(almacen_datos: dict) -> pd.DataFrame:
         if 'balance_after' in df_validos.columns:
             saldo_promedio_final = float(pd.to_numeric(df_validos['balance_after'], errors='coerce').mean())
         if 'status' in df_validos.columns:
-            transacciones_confirmadas = int(df_validos['status'].astype(str).str.upper().eq('CONFIRMED').sum())
+            transacciones_confirmadas = int(df_validos['status'].astype(str).str.upper().eq('COMPLETED').sum())
         if 'account_id' in df_validos.columns:
             cuentas_unicas = int(df_validos['account_id'].nunique(dropna=True))
         if 'reporting_month' in df_validos.columns:
@@ -41,7 +41,7 @@ def calcular_kpis(almacen_datos: dict) -> pd.DataFrame:
         {'kpi': 'monto_total_valido', 'valor': round(monto_total_valido, 2), 'descripcion': 'Monto total de transacciones válidas'},
         {'kpi': 'monto_promedio_valido', 'valor': round(monto_promedio_valido, 2), 'descripcion': 'Monto promedio de transacciones válidas'},
         {'kpi': 'saldo_promedio_final', 'valor': round(saldo_promedio_final, 2), 'descripcion': 'Saldo promedio posterior a la transacción'},
-        {'kpi': 'transacciones_confirmadas', 'valor': transacciones_confirmadas, 'descripcion': 'Cantidad de transacciones con status CONFIRMED'},
+        {'kpi': 'transacciones_confirmadas', 'valor': transacciones_confirmadas, 'descripcion': 'Cantidad de transacciones con status COMPLETED'},
         {'kpi': 'cuentas_unicas', 'valor': cuentas_unicas, 'descripcion': 'Cantidad de cuentas distintas'},
         {'kpi': 'meses_unicos', 'valor': meses_unicos, 'descripcion': 'Cantidad de meses de reporte distintos'},
     ])

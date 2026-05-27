@@ -1,0 +1,12 @@
+{
+  "source": "KPI Fintech",
+  "saved_at": "2026-05-27T09:34:45.209019Z",
+  "records": 10,
+  "columns": [
+    "kpi",
+    "valor",
+    "descripcion"
+  ],
+  "output_file": "kpi_fintech_2026-05-27T093445209386Z.csv",
+  "output_hash": "731727a80e50a933e6f823c8a3ff87e0b729f0b0e7598362d28e40072e8d7e90"
+}

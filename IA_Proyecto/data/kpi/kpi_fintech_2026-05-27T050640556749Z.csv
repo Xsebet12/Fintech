@@ -1,0 +1,11 @@
+kpi,valor,descripcion
+total_registros,160.0,Registros totales procesados
+registros_validos,19.0,Registros que pasaron validación
+registros_invalidos,141.0,Registros descartados por validación
+tasa_registros_validos,0.1187,Proporción de registros válidos
+monto_total_valido,2886.49,Monto total de transacciones válidas
+monto_promedio_valido,151.92,Monto promedio de transacciones válidas
+saldo_promedio_final,2225.71,Saldo promedio posterior a la transacción
+transacciones_confirmadas,19.0,Cantidad de transacciones con status COMPLETED
+cuentas_unicas,15.0,Cantidad de cuentas distintas
+meses_unicos,2.0,Cantidad de meses de reporte distintos
