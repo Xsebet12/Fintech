@@ -1,59 +1,57 @@
 Este repositorio se centra en el caso Fintech de la Evaluación Parcial N°2. La fuente principal para trabajar es [IA_Proyecto/data/raw/fintech_raw.csv](IA_Proyecto/data/raw/fintech_raw.csv), que contiene transacciones con trazabilidad por hash, saldos antes y después, código regulatorio y metadatos de auditoría.
 
+El objetivo del proyecto es aplicar un flujo **ETL** sobre los datos de transacciones y, una vez limpios y validados, calcular **KPIs** de monitoreo para la demo y la defensa del caso.
+
 Para ejecutar el flujo principal:
 
 ```bash
 python pipeline.py
 ```
 
-El pipeline realiza tres etapas:
+El pipeline realiza cuatro etapas:
 
 1. Ingesta del CSV de transacciones.
 2. Transformación de tipos y derivación de métricas de auditoría.
 3. Validación estructural y semántica de la cadena de datos.
+4. Carga de los datos limpios y generación de KPIs.
 
 La configuración del archivo [config.json](config.json) ya apunta al raw del proyecto y puede cambiarse si fuera necesario.
 
-**Pruebas locales y stubs (archivos_test)**
+### Salidas generadas
 
-Hemos añadido stubs de prueba dentro del paquete `archivos_test` para poder ejecutar el pipeline sin restaurar las implementaciones externas. Los ficheros de prueba principales son:
+El pipeline guarda los datos limpios en `IA_Proyecto/data/processed/` y los KPIs en `IA_Proyecto/data/kpi/`, además de sus metadatos versionados en la carpeta `metadata` asociada.
 
-- `archivos_test/leer_batch.py` — stub para `leer_datos_batch` (batch de libros).
-- `archivos_test/fuente_realtime.py` — stub para `leer_clima_tiempo_real` (snapshots).
-- `archivos_test/run_pipeline_test.py` — pequeño runner para validar todo usando los stubs.
-- `archivos_test/test.ipynb` — notebook de prueba (migrado desde `archivos test/test.ipynb`).
+### Notebooks del proyecto
 
-Comportamiento: si el pipeline no encuentra `ingestion.leer_batch` o `ingestion.fuente_realtime`, intentará usar los stubs en `archivos_test` como fallback — útil solo para pruebas locales.
+Los notebooks del caso quedaron organizados por etapa dentro de `IA_Proyecto/notebooks/`:
 
-Comandos recomendados para pruebas (cópialos y ejecútalos en tu máquina local):
+- `1-Ingesta_fintech.ipynb`
+- `2-Transformacion_fintech.ipynb`
+- `3-Data_Quality_fintech.ipynb`
+- `4-Carga_fintech.ipynb`
+
+En la raíz del repositorio queda también el notebook de ejecución sencilla:
+
+- `pipeline_fintech.ipynb`
+
+La carga de resultados se documenta en notebook, pero la lógica reusable está implementada en `carga/carga_datos.py` para que el pipeline y la demo la invoquen sin duplicar código.
+
+### KPI sugeridos para la demo
+
+- `tasa_registros_validos`: proporción de transacciones que pasan la validación.
+- `monto_total_valido`: suma de los montos válidos.
+- `monto_promedio_valido`: ticket promedio.
+- `saldo_promedio_final`: saldo posterior promedio.
+- `transacciones_confirmadas`: número de transacciones con estado confirmado.
+- `cuentas_unicas`: cantidad de cuentas distintas procesadas.
+
+### Pruebas locales
 
 ```bash
-# Crear rama para pruebas (recomendado)
-git checkout -b feat/test-stubs
-
-# Añadir cambios y commitear
-git add pipeline.py archivos_test/*
-git commit -m "test: añadir stubs en archivos_test y selector CLI en pipeline.py para pruebas locales"
-git push -u origin feat/test-stubs
-
-# Instalar dependencias si es necesario
 python3 -m pip install -r requirements.txt
-
-# Ejecutar solo la fuente CSV
-python3 pipeline.py --sources csv
-
-# Ejecutar CSV + batch + realtime (usará stubs si faltan los módulos reales)
-python3 pipeline.py --sources csv,batch,realtime
-
-# Ejecutar el script de prueba que resume resultados
-python3 -m archivos_test.run_pipeline_test
+python3 pipeline.py
 ```
 
-Notas y buenas prácticas:
-- Los stubs están pensados solo para pruebas locales y no deben fusionarse a `main` sin revisión. Manténlos en una rama de pruebas y abre un PR con la etiqueta `test` si quieres compartirlos.
-- Para mayor seguridad, se puede añadir un flag `--test` o `use_test_stubs` en `config.json` para activar stubs explícitamente; actualmente el pipeline usa fallback implícito.
-- Si vas a ejecutar en un entorno CI o producción, asegúrate de restaurar o implementar las versiones reales de `ingestion/leer_batch.py` y `ingestion/fuente_realtime.py`.
-
-Si quieres que añada la nota al PR template o que implemente `--test` ahora, dime y lo hago.
+Si luego quieres extender la demo, la siguiente mejora natural es añadir gráficos de KPI y una pequeña bitácora de ejecución por fecha.
 
 

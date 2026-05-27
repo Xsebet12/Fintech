@@ -15,6 +15,15 @@ def generar_transformaciones(almacen_datos):
     if 'created_at' in df.columns:
         df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce', utc=True)
 
+    if 'transaction_id' in df.columns:
+        df['transaction_id'] = df['transaction_id'].astype(str).str.strip()
+
+    if 'account_id' in df.columns:
+        df['account_id'] = df['account_id'].astype(str).str.strip()
+
+    if 'status' in df.columns:
+        df['status'] = df['status'].astype(str).str.strip().str.upper()
+
     if 'reporting_month' in df.columns:
         df['reporting_month'] = df['reporting_month'].astype(str).str.strip()
 
@@ -52,6 +61,10 @@ def generar_transformaciones(almacen_datos):
         df['metadata_channel'] = df['metadata'].astype(str).str.extract(r'channel=([^|]+)', expand=False).str.strip()
         df['metadata_note'] = df['metadata'].astype(str).str.extract(r'note=([^|]+)', expand=False).str.strip()
 
+    if 'created_at' in df.columns:
+        df['created_date'] = df['created_at'].dt.date
+        df['created_month'] = df['created_at'].dt.strftime('%Y-%m')
+
     if {'reporting_month', 'transaction_type', 'amount'}.issubset(df.columns):
         resumen_mensual = (
             df.groupby(['reporting_month', 'transaction_type'], dropna=False)
@@ -63,6 +76,21 @@ def generar_transformaciones(almacen_datos):
         )
         almacen_datos['Resumen_Mensual'] = resumen_mensual
         print("Resumen_Mensual agregado correctamente.")
+
+    if {'account_id', 'amount', 'status'}.issubset(df.columns):
+        resumen_cuentas = (
+            df.groupby('account_id', dropna=False)
+            .agg(
+                transacciones=('transaction_id', 'count') if 'transaction_id' in df.columns else ('amount', 'count'),
+                monto_total=('amount', 'sum'),
+                monto_promedio=('amount', 'mean'),
+                transacciones_confirmadas=('status', lambda s: (s == 'CONFIRMED').sum()),
+            )
+            .reset_index()
+            .sort_values('monto_total', ascending=False)
+        )
+        almacen_datos['Resumen_Cuentas'] = resumen_cuentas
+        print("Resumen_Cuentas agregado correctamente.")
     
     almacen_datos['Fintech'] = df
 

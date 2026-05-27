@@ -1,7 +1,12 @@
 import pandas as pd
-import re
 
-def ejecutar_validaciones(almacen_datos):
+
+def _get_setting(config, key, default):
+    if isinstance(config, dict):
+        return config.get(key, default)
+    return default
+
+def ejecutar_validaciones(almacen_datos, config=None):
     print("Validacion de transacciones fintech")
     df = almacen_datos.get('Fintech')
     if df is None or (hasattr(df, 'empty') and df.empty):
@@ -41,7 +46,8 @@ def ejecutar_validaciones(almacen_datos):
         else:
             df['monto_firmado'] = pd.NA
 
-        tolerance = 0.01
+        validation_config = _get_setting(config, 'validation', {})
+        tolerance = float(_get_setting(validation_config, 'balance_tolerance', 0.01))
         if 'balance_before' in df.columns and 'balance_after' in df.columns and 'monto_firmado' in df.columns:
             df['val_balance'] = (df['balance_before'] + df['monto_firmado']).sub(df['balance_after']).abs() <= tolerance
         else:
@@ -69,7 +75,7 @@ def ejecutar_validaciones(almacen_datos):
             ordered = ordered.sort_values(['_sort_created_at', 'transaction_id'], na_position='last')
             val_chain = pd.Series(False, index=df.index)
             previous_hash = None
-            zero_hash = '0000000000000000000000000000000000000000000000000000000000000000'
+            zero_hash = _get_setting(validation_config, 'zero_hash', '0000000000000000000000000000000000000000000000000000000000000000')
             for idx, row in ordered.iterrows():
                 expected_previous = zero_hash if previous_hash is None else previous_hash
                 current_prev_hash = str(row.get('prev_record_hash', '')).strip()

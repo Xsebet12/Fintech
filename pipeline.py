@@ -1,126 +1,19 @@
+from __future__ import annotations
+
 import json
 import os
 
 import pandas as pd
 
+from IA_Proyecto.src.audit_utils import ensure_dir
+from carga.carga_datos import cargar_datos
+from data_quality.validacion import ejecutar_validaciones
 from ingestion.lectura_csv import leer_datos_csv
 from procesamiento.transformacion import generar_transformaciones
-from data_quality.validacion import ejecutar_validaciones
-
-def run_orchestator_selected(selected, config_path: str = 'config.json'):
-    """Ejecuta el orquestador solo para las fuentes indicadas en `selected`.
-    `selected` es un conjunto con elementos: 'csv', 'batch', 'realtime'.
-    """
-    config = load_config(config_path)
-
-    almacen_datos = {}
-
-    if 'csv' in selected:
-        print("--- Lectura de transacciones fintech (CSV)")
-        fintech_path = config.get('fintech_path', 'IA_Proyecto/data/raw/fintech_raw.csv')
-        almacen_datos['Fintech'] = leer_datos_csv(fintech_path)
-
-    if 'batch' in selected:
-        print("--- Lectura de datos batch (libros)")
-        try:
-            from ingestion.leer_batch import leer_datos_batch
-            topic = config.get('batch_topic', 'scifi')
-            almacen_datos['Libros'] = leer_datos_batch(topic)
-        except Exception as exc:
-            print(f"No se pudo ejecutar lectura batch desde ingestion: {exc}")
-            try:
-                from archivos_test.leer_batch import leer_datos_batch as _leer_batch
-                topic = config.get('batch_topic', 'scifi')
-                almacen_datos['Libros'] = _leer_batch(topic)
-                print("Usando stub de prueba para lectura batch (archivos_test.leer_batch)")
-            except Exception as exc2:
-                print(f"Fallback test stub failed: {exc2}")
-                import pandas as _pd
-                almacen_datos['Libros'] = _pd.DataFrame()
-
-    if 'realtime' in selected:
-        print("--- Lectura del clima en tiempo real (snapshots)")
-        try:
-            from ingestion.fuente_realtime import leer_clima_tiempo_real
-            import time as _time
-            total_lecturas = []
-            n_snapshots = int(config.get('realtime_snapshots', 5))
-            interval = float(config.get('realtime_interval_seconds', 1))
-            for i in range(n_snapshots):
-                print(f"  > instantanea {i+1}...")
-                df_snap = leer_clima_tiempo_real()
-                if not df_snap.empty:
-                    total_lecturas.append(df_snap)
-                _time.sleep(interval)
-            if total_lecturas:
-                import pandas as _pd
-                almacen_datos['clima'] = _pd.concat(total_lecturas, ignore_index=True)
-            else:
-                import pandas as _pd
-                almacen_datos['clima'] = _pd.DataFrame()
-        except Exception as exc:
-            print(f"No se pudo ejecutar lectura realtime desde ingestion: {exc}")
-            try:
-                from archivos_test.fuente_realtime import leer_clima_tiempo_real as _leer_rt
-                import time as _time
-                total_lecturas = []
-                n_snapshots = int(config.get('realtime_snapshots', 5))
-                interval = float(config.get('realtime_interval_seconds', 1))
-                for i in range(n_snapshots):
-                    print(f"  > instantanea {i+1} (stub)...")
-                    df_snap = _leer_rt()
-                    if not df_snap.empty:
-                        total_lecturas.append(df_snap)
-                    _time.sleep(interval)
-                if total_lecturas:
-                    import pandas as _pd
-                    almacen_datos['clima'] = _pd.concat(total_lecturas, ignore_index=True)
-                else:
-                    import pandas as _pd
-                    almacen_datos['clima'] = _pd.DataFrame()
-                print("Usando stub de prueba para lectura realtime (archivos_test.fuente_realtime)")
-            except Exception as exc2:
-                print(f"Fallback test stub failed for realtime: {exc2}")
-                import pandas as _pd
-                almacen_datos['clima'] = _pd.DataFrame()
-
-    print("--- Resumen de datos sin transformar")
-    for elemento, df in almacen_datos.items():
-        print(f"\nFUENTE: {elemento}")
-        if hasattr(df, 'empty') and not df.empty:
-            print(f"Rows: {len(df)} | Columns: {list(df.columns)}")
-            print(df.head(2))
-        else:
-            print("Empty Table (Check connection)")
-
-    almacen_datos = generar_transformaciones(almacen_datos)
-
-    print("\n--- Resumen de datos transformados")
-    for elemento, df in almacen_datos.items():
-        print(f"FUENTE/TRANSFORMACIÓN: {elemento}")
-        if hasattr(df, 'empty') and not df.empty:
-            print(df.head(2) if hasattr(df, 'head') else df)
-        elif isinstance(df, pd.Series):
-            print(df)
-        else:
-            print("Sin datos o formato no reconocido")
-
-    almacen_datos = ejecutar_validaciones(almacen_datos)
-
-    print("\n--- Resumen de datos validados")
-    for elemento, df in almacen_datos.items():
-        print(f"FUENTE/VALIDACIÓN: {elemento}")
-        if hasattr(df, 'empty') and not df.empty:
-            print(df.head(2) if hasattr(df, 'head') else df)
-        elif isinstance(df, pd.Series):
-            print(df)
-        else:
-            print("Sin datos o formato no reconocido")
-
-    return almacen_datos
+from reporting.kpi import calcular_kpis
 
 
-def load_config(path: str = 'config.json'):
+def load_config(path: str = 'config.json') -> dict:
     if not os.path.exists(path):
         print(f'Config file not found: {path} — using defaults')
         return {}
@@ -128,63 +21,64 @@ def load_config(path: str = 'config.json'):
         return json.load(f)
 
 
-def run_orchestator(config_path: str = 'config.json'):
+def _print_dataframe_summary(title: str, df: pd.DataFrame):
+    print(title)
+    if isinstance(df, pd.DataFrame) and not df.empty:
+        print(f"Rows: {len(df)} | Columns: {list(df.columns)}")
+        print(df.head(2))
+    else:
+        print("Empty Table (Check connection)")
+
+
+def run_pipeline(config_path: str = 'config.json'):
     config = load_config(config_path)
+
+    fintech_path = config.get('fintech_path', 'IA_Proyecto/data/raw/fintech_raw.csv')
+    output_dirs = config.get('output_dirs', {})
+    processed_dir = ensure_dir(output_dirs.get('processed', 'IA_Proyecto/data/processed'))
+    kpi_dir = ensure_dir(output_dirs.get('kpi', 'IA_Proyecto/data/kpi'))
 
     almacen_datos = {}
 
-    print("--- Lectura de transacciones fintech")
-    fintech_path = config.get('fintech_path', 'IA_Proyecto/data/raw/fintech_raw.csv')
+    print("--- Etapa 1: Ingesta")
     almacen_datos['Fintech'] = leer_datos_csv(fintech_path)
+    _print_dataframe_summary("--- Resumen de datos ingeridos", almacen_datos['Fintech'])
 
-    print("--- Resumen de datos sin transformar")
-    for elemento, df in almacen_datos.items():
-        print(f"\nFUENTE: {elemento}")
-        if hasattr(df, 'empty') and not df.empty:
-            print(f"Rows: {len(df)} | Columns: {list(df.columns)}")
-            print(df.head(2))
-        else:
-            print("Empty Table (Check connection)")
-
+    print("\n--- Etapa 2: Limpieza y transformación")
     almacen_datos = generar_transformaciones(almacen_datos)
-
-    print("\n--- Resumen de datos transformados")
     for elemento, df in almacen_datos.items():
-        print(f"FUENTE/TRANSFORMACIÓN: {elemento}")
-        if hasattr(df, 'empty') and not df.empty:
-            print(df.head(2) if hasattr(df, 'head') else df)
-        elif isinstance(df, pd.Series):
-            print(df)
-        else:
-            print("Sin datos o formato no reconocido")
+        if isinstance(df, pd.DataFrame):
+            _print_dataframe_summary(f"FUENTE/TRANSFORMACIÓN: {elemento}", df)
 
-    almacen_datos = ejecutar_validaciones(almacen_datos)
+    print("\n--- Etapa 3: Validación")
+    almacen_datos = ejecutar_validaciones(almacen_datos, config=config)
+    for elemento in ['Fintech', 'Fintech Validos', 'Fintech Invalidos']:
+        df = almacen_datos.get(elemento)
+        if isinstance(df, pd.DataFrame):
+            _print_dataframe_summary(f"FUENTE/VALIDACIÓN: {elemento}", df)
 
-    print("\n--- Resumen de datos validados")
-    for elemento, df in almacen_datos.items():
-        print(f"FUENTE/VALIDACIÓN: {elemento}")
-        if hasattr(df, 'empty') and not df.empty:
-            print(df.head(2) if hasattr(df, 'head') else df)
-        elif isinstance(df, pd.Series):
-            print(df)
-        else:
-            print("Sin datos o formato no reconocido")
+    print("\n--- Etapa 4: KPI y carga")
+    kpi_df = calcular_kpis(almacen_datos)
+    print(kpi_df)
 
-    return almacen_datos
-
-
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run ETL pipeline for selected sources")
-    parser.add_argument("--sources", default="all",
-                        help="Comma-separated sources: csv,batch,realtime or all (default)")
-    parser.add_argument("--config", default="config.json", help="Path to config file")
-    args = parser.parse_args()
-
-    selected = set(s.strip() for s in args.sources.split(",") if s.strip())
-    if not selected or 'all' in selected:
-        results = run_orchestator(args.config)
+    resultados_carga = cargar_datos(almacen_datos, kpi_df, output_dirs=output_dirs)
+    print("\n--- Artefactos guardados")
+    if resultados_carga:
+        for nombre, paths in resultados_carga.items():
+            csv_path, metadata_path = paths
+            print(f"{nombre}: {csv_path}")
+            if metadata_path is not None:
+                print(f"metadata: {metadata_path}")
     else:
-        results = run_orchestator_selected(selected, args.config)
+        print("No se generaron artefactos para guardar.")
+
+    return {
+        'datos': almacen_datos,
+        'kpis': kpi_df,
+        'carga': resultados_carga,
+    }
+
+
+if __name__ == '__main__':
+    run_pipeline()
 
