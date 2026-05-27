@@ -1,5 +1,7 @@
+"""Paquete de carga de datos del pipeline Fintech."""
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -17,36 +19,53 @@ def cargar_datos(almacen_datos: dict, kpi_df: pd.DataFrame, output_dirs: dict | 
     df_validos = almacen_datos.get('Fintech Validos')
     if isinstance(df_validos, pd.DataFrame) and not df_validos.empty:
         resultados['Fintech Validos'] = save_dataframe_versioned(
-            df_validos,
-            processed_dir,
-            'fintech_limpio',
-            metadata={
-                'source': 'Fintech Validos',
-                'saved_at': utc_now_iso(),
-            },
+            df_validos, processed_dir, 'fintech_limpio',
+            metadata={'source': 'Fintech Validos', 'saved_at': utc_now_iso()},
         )
 
     df_invalidos = almacen_datos.get('Fintech Invalidos')
     if isinstance(df_invalidos, pd.DataFrame) and not df_invalidos.empty:
         resultados['Fintech Invalidos'] = save_dataframe_versioned(
-            df_invalidos,
-            processed_dir,
-            'fintech_invalidos',
-            metadata={
-                'source': 'Fintech Invalidos',
-                'saved_at': utc_now_iso(),
-            },
+            df_invalidos, processed_dir, 'fintech_invalidos',
+            metadata={'source': 'Fintech Invalidos', 'saved_at': utc_now_iso()},
         )
 
     if isinstance(kpi_df, pd.DataFrame) and not kpi_df.empty:
         resultados['KPI'] = save_dataframe_versioned(
-            kpi_df,
-            kpi_dir,
-            'kpi_fintech',
-            metadata={
-                'source': 'KPI Fintech',
-                'saved_at': utc_now_iso(),
-            },
+            kpi_df, kpi_dir, 'kpi_fintech',
+            metadata={'source': 'KPI Fintech', 'saved_at': utc_now_iso()},
         )
 
+    # Carga a PostgreSQL
+    _cargar_a_postgres(df_validos, df_invalidos, kpi_df)
+
     return resultados
+
+
+def _cargar_a_postgres(df_validos, df_invalidos, kpi_df):
+    try:
+        import psycopg2
+        from sqlalchemy import create_engine
+
+        host = os.getenv('DB_HOST', 'localhost')
+        port = os.getenv('DB_PORT', '5432')
+        name = os.getenv('DB_NAME', 'fintech_db')
+        user = os.getenv('DB_USER', 'fintech_user')
+        password = os.getenv('DB_PASSWORD', 'fintech123')
+
+        engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{name}')
+
+        if isinstance(df_validos, pd.DataFrame) and not df_validos.empty:
+            df_validos.to_sql('fintech_validos', engine, if_exists='replace', index=False)
+            print(f"✅ PostgreSQL: {len(df_validos)} registros válidos cargados")
+
+        if isinstance(df_invalidos, pd.DataFrame) and not df_invalidos.empty:
+            df_invalidos.to_sql('fintech_invalidos', engine, if_exists='replace', index=False)
+            print(f"✅ PostgreSQL: {len(df_invalidos)} registros inválidos cargados")
+
+        if isinstance(kpi_df, pd.DataFrame) and not kpi_df.empty:
+            kpi_df.to_sql('kpi_fintech', engine, if_exists='replace', index=False)
+            print(f"✅ PostgreSQL: KPIs cargados")
+
+    except Exception as e:
+        print(f"⚠️ PostgreSQL no disponible, usando solo CSV: {e}")
