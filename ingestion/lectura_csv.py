@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
@@ -15,7 +16,11 @@ def _row_hash(row: pd.Series) -> str:
 
 
 def _save_metadata(metadata: dict, source: str):
-    outdir = ensure_dir(os.path.join(os.path.dirname(source), "..", "data", "metadata"))
+    source_path = Path(source)
+    if source_path.parent.name == "raw" and source_path.parent.parent.name == "data":
+        outdir = ensure_dir(source_path.parent.parent / "metadata")
+    else:
+        outdir = ensure_dir(source_path.resolve().parent / "metadata")
     ts = metadata.get("ingested_at", utc_now_iso())
     safe_ts = ts.replace(":", "").replace(".", "")
     fname = f"ingest_{os.path.basename(source)}_{safe_ts}.json"
